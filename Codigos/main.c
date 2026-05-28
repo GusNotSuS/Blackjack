@@ -9,15 +9,15 @@ int main() {
     Jogo jogo;
     inicializar_jogo(&jogo);
 
-    printf("=== BEM-VINDO AO SIMULADOR DE BLACKJACK ANALÍTICO ===\n");
-    printf("Integrantes: Luiz, Marques, Lucas, Raphael e Tágore\n\n");
+    printf("=== BEM-VINDO AO SIMULADOR DE BLACKJACK ANALITICO ===\n");
+    printf("Integrantes: Luiz, Marques, Lucas, Raphael e Tagore\n\n");
     printf("Capital Inicial fixado em R$ 250.00 | Objetivo: R$ 500.00\n\n");
 
-    printf("Selecione o Nível de Dificuldade:\n");
-    printf("1 - Modo Assistência (Suporte Total)\n");
-    printf("2 - Modo Fácil (Sem cálculo automatizado)\n");
-    printf("3 - Modo Médio (Apenas 3 consultas para o JOGO TODO)\n");
-    printf("4 - Modo Difícil (Contagem puramente mental)\n");
+    printf("Selecione o Nivel de Dificuldade:\n");
+    printf("1 - Modo Assistencia (Suporte Total)\n");
+    printf("2 - Modo Facil (Sem calculo automatizado)\n");
+    printf("3 - Modo Medio (Apenas 3 consultas para o JOGO TODO)\n");
+    printf("4 - Modo Dificil (Contagem puramente mental)\n");
     printf("Escolha: ");
     scanf("%d", &jogo.nivel_dificuldade);
 
@@ -27,13 +27,11 @@ int main() {
 
     if (jogo.saldo >= 500.0) {
         printf("\n==================================================\n");
-        printf(" PARABÉNS! Você atingiu o objetivo de R$ 500.00!\n");
-        printf(" Vitória alcançada mitigando a vantagem da casa.\n");
+        printf(" PARABENS! Voce atingiu o objetivo de R$ 500.00!\n");
         printf("==================================================\n");
     } else {
         printf("\n==================================================\n");
-        printf(" GAME OVER! Saldo insuficiente para aposta mínima.\n");
-        printf(" Falência decretada. A casa venceu no longo prazo.\n");
+        printf(" GAME OVER! Saldo insuficiente para aposta minima.\n");
         printf("==================================================\n");
     }
 
