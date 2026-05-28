@@ -11,22 +11,23 @@ int main() {
 
     printf("=== BEM-VINDO AO SIMULADOR DE BLACKJACK ANALÍTICO ===\n");
     printf("Integrantes: Luiz, Marques, Lucas, Raphael e Tágore\n\n");
-    
+    printf("Capital Inicial fixado em R$ 250.00 | Objetivo: R$ 500.00\n\n");
+
     printf("Selecione o Nível de Dificuldade:\n");
     printf("1 - Modo Assistência (Suporte Total)\n");
     printf("2 - Modo Fácil (Sem cálculo automatizado)\n");
-    printf("3 - Modo Médio (Apenas 1 consulta por rodada)\n");
+    printf("3 - Modo Médio (Apenas 3 consultas para o JOGO TODO)\n");
     printf("4 - Modo Difícil (Contagem puramente mental)\n");
     printf("Escolha: ");
     scanf("%d", &jogo.nivel_dificuldade);
 
-    while (jogo.saldo >= 50.0 && jogo.saldo < 1000.0) {
+    while (jogo.saldo >= 50.0 && jogo.saldo < 500.0) {
         jogar_rodada(&jogo);
     }
 
-    if (jogo.saldo >= 1000.0) {
+    if (jogo.saldo >= 500.0) {
         printf("\n==================================================\n");
-        printf(" PARABÉNS! Você atingiu o objetivo de R$ 1000.00!\n");
+        printf(" PARABÉNS! Você atingiu o objetivo de R$ 500.00!\n");
         printf(" Vitória alcançada mitigando a vantagem da casa.\n");
         printf("==================================================\n");
     } else {

@@ -9,15 +9,17 @@ typedef struct {
     int vetor_frequencia[13];
     float saldo;
     int nivel_dificuldade;
-    int consultas_restantes_rodada;
+    int consultas_restantes_totais;
 } Jogo;
 
+void aguardar_ms(int milissegundos);
 void inicializar_jogo(Jogo* jogo);
 void criar_baralho(Jogo* jogo);
 void atualizar_frequencia_inicial(Jogo* jogo);
 void registrar_saida_carta(Jogo* jogo, Carta carta);
 float calcular_probabilidade_estouro(Jogo* jogo, int pontuacao_atual);
-void exibir_painel_transparencia(Jogo* jogo, bool forçar_exibicao);
+float calcular_probabilidade_banca_vencer(Jogo* jogo, int pontuacao_banca_visivel, int pontuacao_jogador);
+void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao);
 void jogar_rodada(Jogo* jogo);
 
 #endif
