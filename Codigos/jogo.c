@@ -249,7 +249,7 @@ void jogar_rodada(Jogo* jogo) {
     }
 
     if (jogador.pontuacao > 21) {
-        printf("\nSua pontuacao final: %d. Você estourou!\n", jogador.pontuacao);
+        printf("\nSua pontuacao final: %d. Voce estourou!\n", jogador.pontuacao);
         printf("A casa recolhe a aposta sem precisar jogar.\n");
         jogo->cartas_restantes--; 
         registrar_saida_carta(jogo, cc2); 
@@ -268,7 +268,7 @@ void jogar_rodada(Jogo* jogo) {
         }
 
         while (casa.pontuacao < 17) {
-            printf("Banca está com %d pontos e compra uma carta...\n", casa.pontuacao);
+            printf("Banca esta com %d pontos e compra uma carta...\n", casa.pontuacao);
             aguardar_ms(500);
             Carta nova = desempilhar(&jogo->topo_baralho);
             jogo->cartas_restantes--;
