@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "mao.h"
@@ -62,4 +63,58 @@ void liberar_mao(Mao* mao) {
         atual = prox;
     }
     mao->inicio = NULL;
+}
+
+void exibir_mao_grafica(Mao* mao, bool esconder_primeira) {
+    if (mao->inicio == NULL) return;
+
+    char linhas[9][1024];
+    for (int i = 0; i < 9; i++) {
+        linhas[i][0] = '\0';
+    }
+
+    No* current = mao->inicio;
+    bool primeira = true;
+
+    while (current != NULL) {
+        char n_char = ' ';
+        if (strcmp(current->carta.naipe, "Copas") == 0) n_char = 'v';      
+        else if (strcmp(current->carta.naipe, "Espadas") == 0) n_char = '4'; 
+        else if (strcmp(current->carta.naipe, "Ouros") == 0) n_char = 'o';   
+        else if (strcmp(current->carta.naipe, "Paus") == 0) n_char = '+';    
+
+        char temp[9][40];
+        if (esconder_primeira && primeira) {
+            sprintf(temp[0], " .__________. ");
+            sprintf(temp[1], " |.:.:.:.:.:| ");
+            sprintf(temp[2], " |:.:.:.:.:.| ");
+            sprintf(temp[3], " |.:.:.:.:.:| ");
+            sprintf(temp[4], " |:.:.:.:.:.| ");
+            sprintf(temp[5], " |.:.:.:.:.:| ");
+            sprintf(temp[6], " |:.:.:.:.:.| ");
+            sprintf(temp[7], " |.:.:.:.:.:| ");
+            sprintf(temp[8], " |__________| ");
+        } else {
+            sprintf(temp[0], " .__________. ");
+            sprintf(temp[1], " |%-2s        | ", current->carta.identidade);
+            sprintf(temp[2], " | .      . | ");
+            sprintf(temp[3], " |   .  .   | ");
+            sprintf(temp[4], " |    %c     | ", n_char);
+            sprintf(temp[5], " |   .  .   | ");
+            sprintf(temp[6], " | .      . | ");
+            sprintf(temp[7], " |        %2s| ", current->carta.identidade);
+            sprintf(temp[8], " |__________| ");
+        }
+
+        for (int i = 0; i < 9; i++) {
+            strcat(linhas[i], temp[i]);
+        }
+
+        primeira = false;
+        current = current->proximo;
+    }
+
+    for (int i = 0; i < 9; i++) {
+        printf("%s\n", linhas[i]);
+    }
 }

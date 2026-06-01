@@ -13,5 +13,6 @@ typedef struct {
 void inicializar_mao(Mao* mao);
 void adicionar_carta_na_mao(Mao* mao, Carta carta);
 void liberar_mao(Mao* mao);
+void exibir_mao_grafica(Mao* mao, bool esconder_primeira);
 
 #endif

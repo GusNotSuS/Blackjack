@@ -21,6 +21,13 @@ void inicializar_jogo(Jogo* jogo) {
     jogo->topo_baralho = NULL;
     jogo->cartas_restantes = 0;
     jogo->consultas_restantes_totais = 3;
+    jogo->rodadas_jogadas = 0;
+    
+    jogo->arquivo_historico = fopen("historico_blackjack.txt", "w");
+    if (jogo->arquivo_historico != NULL) {
+        fprintf(jogo->arquivo_historico, "=== LOG DE PARTIDA - BLACKJACK VISUAL PREMIUM ===\n\n");
+    }
+    
     criar_baralho(jogo);
 }
 
@@ -114,15 +121,14 @@ float calcular_probabilidade_banca_vencer(Jogo* jogo, int pontuacao_banca_visive
 
 void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao) {
     if (jogo->nivel_dificuldade == 4 && !forcar_exibicao) {
-        printf("\n[Painel Oculto - Modo Dificil ativo]\n");
         return;
     }
     
     printf("\n--- PAINEL DE TRANSPARENCIA ESTATISTICA (CONTAGEM REAL) ---\n");
-    printf("Cartas revaladas fora de jogo: %d\n", 52 - jogo->cartas_restantes);
+    printf("Cartas REVELADAS fora de jogo: %d\n", 52 - jogo->cartas_restantes);
     
     char idents[13][3] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-    printf("Cartas disponiveis:\n|");
+    printf("Cartas estatisticamente disponiveis (sem contar as ocultas):\n|");
     for (int i = 0; i < 13; i++) {
         printf(" %s:%d |", idents[i], jogo->vetor_frequencia[i]);
     }
@@ -130,14 +136,16 @@ void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao) {
 }
 
 void jogar_rodada(Jogo* jogo) {
+    jogo->rodadas_jogadas++;
+    
     if (jogo->cartas_restantes < 10) {
-        printf("\n[AVISO]: O sapato possui poucas cartas. Reembaralhando...\n");
+        printf("\n[AVISO]: O sapato possui poucas cartas conhecidas. Reembaralhando...\n");
         aguardar_ms(500);
         criar_baralho(jogo);
     }
 
     printf("\n==================================================\n");
-    printf("SALDO ATUAL: R$ %.2f\n", jogo->saldo);
+    printf("RODADA NUMERO: %d | SALDO ATUAL: R$ %.2f\n", jogo->rodadas_jogadas, jogo->saldo);
     printf("==================================================\n");
     
     float aposta = 0.0;
@@ -150,14 +158,13 @@ void jogar_rodada(Jogo* jogo) {
         if (aposta < 50.0) {
             printf("[Fallback]: A aposta minima permitida e de R$ 50.00.\n\n");
         } else if (aposta > jogo->saldo) {
-            printf("[Fallback]: Você nao pode apostar R$ %.2f pois seu saldo atual e de R$ %.2f.\n\n", aposta, jogo->saldo);
+            printf("[Fallback]: Saldo insuficiente.\n\n");
         } else {
             aposta_valida = true;
         }
     }
 
     jogo->saldo -= aposta;
-    printf("\nAposta aceita! R$ %.2f removidos do saldo.\n", aposta);
     aguardar_ms(500);
 
     Mao jogador, casa;
@@ -166,81 +173,65 @@ void jogar_rodada(Jogo* jogo) {
 
     Carta c1 = desempilhar(&jogo->topo_baralho); jogo->cartas_restantes--; registrar_saida_carta(jogo, c1);
     adicionar_carta_na_mao(&jogador, c1);
-    aguardar_ms(500);
 
     Carta cc1 = desempilhar(&jogo->topo_baralho); jogo->cartas_restantes--; registrar_saida_carta(jogo, cc1);
     adicionar_carta_na_mao(&casa, cc1);
-    printf("[Banca]: Recebeu uma carta aberta.\n");
-    aguardar_ms(500);
 
     Carta c2 = desempilhar(&jogo->topo_baralho); jogo->cartas_restantes--; registrar_saida_carta(jogo, c2);
     adicionar_carta_na_mao(&jogador, c2);
-    aguardar_ms(500);
 
     Carta cc2 = desempilhar(&jogo->topo_baralho); 
     adicionar_carta_na_mao(&casa, cc2);
-    printf("[Banca]: Recebeu uma carta oculta.\n");
-    aguardar_ms(500);
-
-    printf("\nSua Mao Inicial: ");
-    No* aux = jogador.inicio;
-    while(aux != NULL) {
-        printf("[%s de %s] ", aux->carta.identidade, aux->carta.naipe);
-        aux = aux->proximo;
-    }
-    printf(" -> Seus Pontos: %d\n", jogador.pontuacao);
-    printf("Carta aberta da Banca: [%s de %s]\n", cc1.identidade, cc1.naipe);
-    aguardar_ms(500);
 
     int acao = 1;
+    char resultado_rodada[50] = "Derrota";
+
     if (jogador.pontuacao == 21) {
-        printf("\nVocê atingiu a pontuação maxima de 21 pontos!\n");
-        printf("Turno encerrado. Avancando para o turno da banca...\n");
+        printf("\n==== FOR THE DEALER ====\n");
+        exibir_mao_grafica(&casa, true);
+        printf("\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
+        exibir_mao_grafica(&jogador, false);
+        printf("\n[AVISO]: Voce atingiu a pontuacao maxima de 21 pontos com as iniciais!\n");
         aguardar_ms(1000);
     } else {
         while (jogador.pontuacao < 21) {
+            printf("\n=================== MESA DE JOGO ===================\n");
+            printf("==== FOR THE DEALER ====\n");
+            exibir_mao_grafica(&casa, true);
+            
+            printf("\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
+            exibir_mao_grafica(&jogador, false);
+            printf("====================================================\n");
+
             if (jogo->nivel_dificuldade == 1) { 
                 exibir_painel_transparencia(jogo, false);
-                printf("Sua probabilidade de ESTOURO se der Hit: %.2f%%\n", calcular_probabilidade_estouro(jogo, jogador.pontuacao));
-                printf("Probabilidade de a Banca bater ou empatar com voce na carta oculta (2 carta): %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, cc1.peso, jogador.pontuacao));
+                printf("Sua probabilidade de ESTOURO se pedir carta (Hit): %.2f%%\n", calcular_probabilidade_estouro(jogo, jogador.pontuacao));
+                printf("Chance de a Banca ganhar/empatar com voce na carta oculta: %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, cc1.peso, jogador.pontuacao));
             } else if (jogo->nivel_dificuldade == 2) { 
                 exibir_painel_transparencia(jogo, false);
             } else if (jogo->nivel_dificuldade == 3) { 
-                printf("Consultas ao painel disponíveis para ESTE JOGO: %d\n", jogo->consultas_restantes_totais);
+                printf("Consultas ao painel disponiveis: %d\n", jogo->consultas_restantes_totais);
                 if (jogo->consultas_restantes_totais > 0) {
-                    printf("Deseja gastar uma consulta estratégica? (1-Sim / 0-Nao): ");
+                    printf("Deseja gastar uma consulta estrategica? (1-Sim / 0-Nao): ");
                     int gastar;
                     scanf("%d", &gastar);
                     if (gastar == 1) {
                         exibir_painel_transparencia(jogo, true);
                         jogo->consultas_restantes_totais--;
-                        printf("Consulta realizada! Restam apenas %d consultas.\n", jogo->consultas_restantes_totais);
-                        printf("Analise preditiva de Mesa: Probabilidade de a Banca igualar/vencer na carta oculta: %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, cc1.peso, jogador.pontuacao));
+                        printf("Analise: Chance de a Banca ganhar na carta oculta: %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, cc1.peso, jogador.pontuacao));
                     }
-                } else {
-                    printf("[Aviso]: Suas consultas estrategicas acabaram\n");
                 }
             }
 
-            printf("\nxmlEscolha sua acao: (1) Pedir Carta) ou (2) Manter? ");
+            printf("\nAcao: (1) Hit (Pedir Carta) ou (2) Stand (Manter)? ");
             scanf("%d", &acao);
 
             if (acao == 1) {
-                printf("\nComprando carta...\n");
-                aguardar_ms(500);
                 Carta nova = desempilhar(&jogo->topo_baralho);
                 jogo->cartas_restantes--;
                 registrar_saida_carta(jogo, nova);
-                printf("Voce comprou: [%s de %s]\n", nova.identidade, nova.naipe);
                 adicionar_carta_na_mao(&jogador, nova);
-                
-                printf("\nSua Mao Atual: ");
-                aux = jogador.inicio;
-                while(aux != NULL) {
-                    printf("[%s de %s] ", aux->carta.identidade, aux->carta.naipe);
-                    aux = aux->proximo;
-                }
-                printf(" -> Seus Pontos: %d\n", jogador.pontuacao);
+                printf("\nVoce comprou uma carta...\n");
                 aguardar_ms(500);
             } else {
                 break;
@@ -249,52 +240,77 @@ void jogar_rodada(Jogo* jogo) {
     }
 
     if (jogador.pontuacao > 21) {
-        printf("\nSua pontuacao final: %d. Voce estourou!\n", jogador.pontuacao);
-        printf("A casa recolhe a aposta sem precisar jogar.\n");
+        printf("\n==== FOR THE PLAYER ==== FINAL (Pontos: %d)\n", jogador.pontuacao);
+        exibir_mao_grafica(&jogador, false);
+        printf("\nSua pontuacao final: %d. Voce ESTOUROU (Bust)!\n", jogador.pontuacao);
         jogo->cartas_restantes--; 
         registrar_saida_carta(jogo, cc2); 
-        aguardar_ms(500);
+        strcpy(resultado_rodada, "Derrota (Estouro)");
+        aguardar_ms(1000);
     } else {
         jogo->cartas_restantes--; 
         registrar_saida_carta(jogo, cc2); 
         printf("\n--- Turno da Banca ---\n");
-        printf("Banca revela a carta oculta: [%s de %s]\n", cc2.identidade, cc2.naipe);
+        printf("==== FOR THE DEALER ==== REVELA A CARTA OCULTA:\n");
+        exibir_mao_grafica(&casa, false);
         printf("Pontuacao imediata da Banca: %d\n", casa.pontuacao);
-        aguardar_ms(500);
-
-        if (casa.pontuacao < 17 && jogo->nivel_dificuldade == 1) {
-            printf("Probabilidade de a Banca vencer/empatar com você na próxima compra (3ª carta): %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, casa.pontuacao, jogador.pontuacao));
-            aguardar_ms(500);
-        }
+        aguardar_ms(1000);
 
         while (casa.pontuacao < 17) {
             printf("Banca esta com %d pontos e compra uma carta...\n", casa.pontuacao);
-            aguardar_ms(500);
+            aguardar_ms(800);
             Carta nova = desempilhar(&jogo->topo_baralho);
             jogo->cartas_restantes--;
             registrar_saida_carta(jogo, nova);
             adicionar_carta_na_mao(&casa, nova);
-            printf("Banca comprou: [%s de %s]\n", nova.identidade, nova.naipe);
-            aguardar_ms(500);
+            exibir_mao_grafica(&casa, false);
         }
-        printf("Pontuacao final da Banca: %d\n", casa.pontuacao);
-        aguardar_ms(500);
+        
+        printf("\n================ RESULTADO FINAL ================\n");
+        printf("[SUA MAO] Pontos: %d | [BANCA] Pontos: %d\n", jogador.pontuacao, casa.pontuacao);
 
         if (casa.pontuacao > 21) {
             printf("A Banca estourou! Voce venceu a rodada.\n");
             jogo->saldo += (aposta * 2.0); 
+            strcpy(resultado_rodada, "Vitoria (Banca Estourou)");
         } else if (jogador.pontuacao > casa.pontuacao) {
-            printf("Voce tem mais pontos que a Banca! Você venceu a rodada.\n");
+            printf("Voce fez mais pontos que a Banca! Vitoria.\n");
             jogo->saldo += (aposta * 2.0);
+            strcpy(resultado_rodada, "Vitoria por Pontos");
         } else if (jogador.pontuacao < casa.pontuacao) {
-            printf("A Banca fez mais pontos. Voce perdeu a rodada.\n");
+            printf("A Banca fez mais pontos. Derrota.\n");
+            strcpy(resultado_rodada, "Derrota por Pontos");
         } else {
-            printf("Empate! O saldo da aposta foi devolvido.\n");
+            printf("Empate (Push)! O saldo foi devolvido.\n");
             jogo->saldo += aposta;
+            strcpy(resultado_rodada, "Empate (Push)");
         }
-        aguardar_ms(500);
+        printf("=================================================\n");
+        aguardar_ms(1500);
+    }
+
+    if (jogo->arquivo_historico != NULL) {
+        fprintf(jogo->arquivo_historico, "Rodada %d:\n", jogo->rodadas_jogadas);
+        fprintf(jogo->arquivo_historico, "  - Aposta: R$ %.2f\n", aposta);
+        fprintf(jogo->arquivo_historico, "  - Pontos Jogador: %d\n", jogador.pontuacao);
+        fprintf(jogo->arquivo_historico, "  - Pontos Banca: %d\n", casa.pontuacao);
+        fprintf(jogo->arquivo_historico, "  - Resultado: %s\n", resultado_rodada);
+        fprintf(jogo->arquivo_historico, "  - Saldo Apos Rodada: R$ %.2f\n\n", jogo->saldo);
     }
 
     liberar_mao(&jogador);
     liberar_mao(&casa);
+}
+
+void fechar_historico(Jogo* jogo, bool objetivo_atingido) {
+    if (jogo->arquivo_historico != NULL) {
+        fprintf(jogo->arquivo_historico, "=========================================\n");
+        fprintf(jogo->arquivo_historico, "SUMMARY DO JOGO:\n");
+        fprintf(jogo->arquivo_historico, "  - Total de Rodadas Concluidas: %d\n", jogo->rodadas_jogadas);
+        fprintf(jogo->arquivo_historico, "  - Status Final: %s\n", objetivo_atingido ? "VITORIA TOTAL" : "DERROTA (FALENCIA)");
+        fprintf(jogo->arquivo_historico, "  - Capital Final Encerramento: R$ %.2f\n", jogo->saldo);
+        fprintf(jogo->arquivo_historico, "=========================================\n");
+        fclose(jogo->arquivo_historico);
+        printf("\n[Sistema]: Historico de jogo persistido com sucesso em 'historico_blackjack.txt'.\n");
+    }
 }
