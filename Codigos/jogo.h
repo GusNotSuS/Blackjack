@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "baralho.h"
+#include "mao.h"
 
 typedef struct {
     No* topo_baralho;
@@ -25,5 +26,9 @@ float calcular_probabilidade_banca_vencer(Jogo* jogo, int pontuacao_banca_visive
 void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao);
 void jogar_rodada(Jogo* jogo);
 void fechar_historico(Jogo* jogo, bool objetivo_atingido);
+
+int estrategia_tradicional(Jogo* jogo, Mao* jogador, int carta_banca_visivel);
+int estrategia_conservadora(Jogo* jogo, Mao* jogador, int carta_banca_visivel);
+int estrategia_probabilistica(Jogo* jogo, Mao* jogador, int carta_banca_visivel);
 
 #endif

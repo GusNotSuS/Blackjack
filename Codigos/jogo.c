@@ -151,6 +151,10 @@ void jogar_rodada(Jogo* jogo) {
     float aposta = 0.0;
     bool aposta_valida = false;
     
+    if (jogo->nivel_dificuldade >= 5) {
+        aposta = 50.0f;
+        aposta_valida = true;
+    } else {
     while (!aposta_valida) {
         printf("Quanto deseja apostar nesta rodada? (Minimo: R$ 50.00 / Maximo: R$ %.2f): R$ ", jogo->saldo);
         scanf("%f", &aposta);
@@ -161,6 +165,7 @@ void jogar_rodada(Jogo* jogo) {
             printf("[Fallback]: Saldo insuficiente.\n\n");
         } else {
             aposta_valida = true;
+            }
         }
     }
 
@@ -187,12 +192,14 @@ void jogar_rodada(Jogo* jogo) {
     char resultado_rodada[50] = "Derrota";
 
     if (jogador.pontuacao == 21) {
+        if (jogo->nivel_dificuldade < 5) {
         printf("\n==== FOR THE DEALER ====\n");
         exibir_mao_grafica(&casa, true);
         printf("\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
         exibir_mao_grafica(&jogador, false);
         printf("\n[AVISO]: Voce atingiu a pontuacao maxima de 21 pontos com as iniciais!\n");
         aguardar_ms(1000);
+        }
     } else {
         while (jogador.pontuacao < 21) {
             printf("\n=================== MESA DE JOGO ===================\n");
@@ -203,6 +210,21 @@ void jogar_rodada(Jogo* jogo) {
             exibir_mao_grafica(&jogador, false);
             printf("====================================================\n");
 
+            if (jogo->nivel_dificuldade >= 5) {
+                switch (jogo->nivel_dificuldade) {
+                    case 5: 
+                        acao = estrategia_tradicional(jogo, &jogador, cc1.peso);
+                        break;
+                    case 6: 
+                        acao = estrategia_conservadora(jogo, &jogador, cc1.peso);
+                        break;
+                    case 7: 
+                        acao = estrategia_probabilistica(jogo, &jogador, cc1.peso);
+                        break;
+                    default:
+                        acao = 2; 
+                }
+            } else {
             if (jogo->nivel_dificuldade == 1) { 
                 exibir_painel_transparencia(jogo, false);
                 printf("Sua probabilidade de ESTOURO se pedir carta (Hit): %.2f%%\n", calcular_probabilidade_estouro(jogo, jogador.pontuacao));
@@ -225,14 +247,17 @@ void jogar_rodada(Jogo* jogo) {
 
             printf("\nAcao: (1) Hit (Pedir Carta) ou (2) Stand (Manter)? ");
             scanf("%d", &acao);
+            }
 
             if (acao == 1) {
                 Carta nova = desempilhar(&jogo->topo_baralho);
                 jogo->cartas_restantes--;
                 registrar_saida_carta(jogo, nova);
                 adicionar_carta_na_mao(&jogador, nova);
+                if (jogo->nivel_dificuldade < 5) {
                 printf("\nVoce comprou uma carta...\n");
                 aguardar_ms(500);
+                }
             } else {
                 break;
             }
@@ -240,48 +265,71 @@ void jogar_rodada(Jogo* jogo) {
     }
 
     if (jogador.pontuacao > 21) {
+        jogo->cartas_restantes--;
+        registrar_saida_carta(jogo, cc2);
+
+        if (jogo->nivel_dificuldade < 5) {
         printf("\n==== FOR THE PLAYER ==== FINAL (Pontos: %d)\n", jogador.pontuacao);
         exibir_mao_grafica(&jogador, false);
         printf("\nSua pontuacao final: %d. Voce ESTOUROU (Bust)!\n", jogador.pontuacao);
-        jogo->cartas_restantes--; 
-        registrar_saida_carta(jogo, cc2); 
+            aguardar_ms(1000);
+        }
         strcpy(resultado_rodada, "Derrota (Estouro)");
         aguardar_ms(1000);
     } else {
         jogo->cartas_restantes--; 
         registrar_saida_carta(jogo, cc2); 
+        jogo->cartas_restantes--;
+        registrar_saida_carta(jogo, cc2);
+
+        if (jogo->nivel_dificuldade < 5) {
         printf("\n--- Turno da Banca ---\n");
         printf("==== FOR THE DEALER ==== REVELA A CARTA OCULTA:\n");
         exibir_mao_grafica(&casa, false);
         printf("Pontuacao imediata da Banca: %d\n", casa.pontuacao);
         aguardar_ms(1000);
+        }
 
         while (casa.pontuacao < 17) {
+            if (jogo->nivel_dificuldade < 5) {
             printf("Banca esta com %d pontos e compra uma carta...\n", casa.pontuacao);
             aguardar_ms(800);
+            }
             Carta nova = desempilhar(&jogo->topo_baralho);
             jogo->cartas_restantes--;
             registrar_saida_carta(jogo, nova);
             adicionar_carta_na_mao(&casa, nova);
+            if (jogo->nivel_dificuldade < 5) {
             exibir_mao_grafica(&casa, false);
+            }
         }
         
+        if (jogo->nivel_dificuldade < 5) {
         printf("\n================ RESULTADO FINAL ================\n");
         printf("[SUA MAO] Pontos: %d | [BANCA] Pontos: %d\n", jogador.pontuacao, casa.pontuacao);
+        }
 
         if (casa.pontuacao > 21) {
+            if (jogo->nivel_dificuldade < 5) {
             printf("A Banca estourou! Voce venceu a rodada.\n");
+            }
             jogo->saldo += (aposta * 2.0); 
             strcpy(resultado_rodada, "Vitoria (Banca Estourou)");
         } else if (jogador.pontuacao > casa.pontuacao) {
+            if (jogo->nivel_dificuldade < 5) {
             printf("Voce fez mais pontos que a Banca! Vitoria.\n");
+            }
             jogo->saldo += (aposta * 2.0);
             strcpy(resultado_rodada, "Vitoria por Pontos");
         } else if (jogador.pontuacao < casa.pontuacao) {
+            if (jogo->nivel_dificuldade < 5) {
             printf("A Banca fez mais pontos. Derrota.\n");
+            }
             strcpy(resultado_rodada, "Derrota por Pontos");
         } else {
+            if (jogo->nivel_dificuldade < 5) {
             printf("Empate (Push)! O saldo foi devolvido.\n");
+            }
             jogo->saldo += aposta;
             strcpy(resultado_rodada, "Empate (Push)");
         }
@@ -300,6 +348,43 @@ void jogar_rodada(Jogo* jogo) {
 
     liberar_mao(&jogador);
     liberar_mao(&casa);
+}
+
+int estrategia_tradicional(Jogo* jogo, Mao* jogador, int carta_banca_visivel) {
+    if (jogador->pontuacao < 17) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+int estrategia_conservadora(Jogo* jogo, Mao* jogador, int carta_banca_visivel) {
+    float prob_estouro = calcular_probabilidade_estouro(jogo, jogador->pontuacao);
+    if (prob_estouro > 50.0f) {
+        return 2;
+    } else {
+        return 1;
+    }
+}
+
+int estrategia_probabilistica(Jogo* jogo, Mao* jogador, int carta_banca_visivel) {
+    
+    float prob_estouro = calcular_probabilidade_estouro(jogo, jogador->pontuacao);
+    float prob_banca_vencer = calcular_probabilidade_banca_vencer(jogo, carta_banca_visivel, jogador->pontuacao);
+
+    if (prob_estouro > 50.0f) {
+        if (prob_banca_vencer > prob_estouro) {
+            return 1;
+        } else {
+            return 2;
+        }
+    } else {
+        if (jogador->pontuacao < 17) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
 }
 
 void fechar_historico(Jogo* jogo, bool objetivo_atingido) {
