@@ -25,14 +25,14 @@ int main() {
         printf("Escolha: ");
         scanf("%d", &jogo.nivel_dificuldade);
 
-        if (jogo->nivel_dificuldade == 5) {
+        if (jogo.nivel_dificuldade == 5) {
             executar_simulacao_e_gerar_relatorio();
         } else {
-            while (jogo->saldo >= 50.0 && jogo->saldo < 500.0) {
-                jogar_rodada(jogo);
+            while (jogo.saldo >= 50.0 && jogo.saldo < 500.0) {
+                jogar_rodada(&jogo);
             }
 
-            bool vitoria = (jogo->saldo >= 500.0);
+            bool vitoria = (jogo.saldo >= 500.0);
             if (vitoria) {
                 printf("\n==================================================\n");
                 printf(" PARABENS! Voce atingiu o objetivo de R$ 500.00!\n");
@@ -43,8 +43,8 @@ int main() {
                 printf("==================================================\n");
             }
 
-            fechar_historico(jogo, vitoria);
-            destruir_baralho(&jogo->topo_baralho);
+            fechar_historico(&jogo, vitoria);
+            destruir_baralho(&jogo.topo_baralho);
         }
 
         printf("\nDeseja iniciar um NOVO JOGO do zero? (1 - Sim / 0 - Sair): ");
@@ -88,8 +88,8 @@ void executar_simulacao_e_gerar_relatorio() {
         for (int sim = 0; sim < NUM_SIMULACOES; sim++) {
             Jogo jogo;
             inicializar_jogo(&jogo);
-            jogo.nivel_dificuldade = algoritmo; 
-            jogo->arquivo_historico = NULL;
+            jogo.nivel_dificuldade = algoritmo;
+            jogo.arquivo_historico = NULL;
 
             while (jogo.saldo >= 50.0 && jogo.saldo < 500.0) {
                 jogar_rodada(&jogo);
@@ -104,7 +104,7 @@ void executar_simulacao_e_gerar_relatorio() {
 
             total_rodadas += jogo.rodadas_jogadas;
 
-            if (jogo->arquivo_historico != NULL) {
+            if (jogo.arquivo_historico != NULL) {
                 fechar_historico(&jogo, vitoria);
             }
             destruir_baralho(&jogo.topo_baralho);
