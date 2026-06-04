@@ -23,8 +23,22 @@ void inicializar_jogo(Jogo* jogo) {
     jogo->consultas_restantes_totais = 3;
     jogo->rodadas_jogadas = 0;
     
-    jogo->arquivo_historico = fopen("historico_blackjack.txt", "w");
+    int contador_jogos = 1;
+    FILE* temp_leitura = fopen("historico_blackjack.txt", "r");
+    if (temp_leitura != NULL) {
+        char linha[256];
+        while (fgets(linha, sizeof(linha), temp_leitura)) {
+            if (strstr(linha, "=== JOGO")) {
+                contador_jogos++;
+            }
+        }
+        fclose(temp_leitura);
+    }
+
+    jogo->arquivo_historico = fopen("historico_blackjack.txt", "a");
     if (jogo->arquivo_historico != NULL) {
+        fprintf(jogo->arquivo_historico, "\n=========================================\n");
+        fprintf(jogo->arquivo_historico, "=== JOGO %d ===\n", contador_jogos);
         fprintf(jogo->arquivo_historico, "=== LOG DE PARTIDA - BLACKJACK VISUAL PREMIUM ===\n\n");
     }
     
