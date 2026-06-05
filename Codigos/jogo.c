@@ -157,7 +157,14 @@ void jogar_rodada(Jogo* jogo) {
     } else {
     while (!aposta_valida) {
         printf("Quanto deseja apostar nesta rodada? (Minimo: R$ 50.00 / Maximo: R$ %.2f): R$ ", jogo->saldo);
-        scanf("%f", &aposta);
+        char input_aposta[20];
+        fgets(input_aposta, sizeof(input_aposta), stdin);
+        char *endptr_aposta;
+        aposta = strtof(input_aposta, &endptr_aposta);
+        if (endptr_aposta == input_aposta || (*endptr_aposta != '\n' && *endptr_aposta != '\0')) {
+            printf("[Fallback]: Entrada invalida para aposta.\n\n");
+            continue;
+        }
         
         if (aposta < 50.0) {
             printf("[Fallback]: A aposta minima permitida e de R$ 50.00.\n\n");
@@ -236,7 +243,16 @@ void jogar_rodada(Jogo* jogo) {
                 if (jogo->consultas_restantes_totais > 0) {
                     printf("Deseja gastar uma consulta estrategica? (1-Sim / 0-Nao): ");
                     int gastar;
-                    scanf("%d", &gastar);
+                    char input_gastar[10];
+                    fgets(input_gastar, sizeof(input_gastar), stdin);
+                    char *endptr_gastar;
+                    long valor_gastar = strtol(input_gastar, &endptr_gastar, 10);
+                    if (endptr_gastar == input_gastar || (*endptr_gastar != '\n' && *endptr_gastar != '\0')) {
+                        printf("[Fallback]: Entrada invalida. Assumindo nao gastar consulta.\n");
+                        gastar = 0;
+                    } else {
+                        gastar = (int)valor_gastar;
+                    }
                     if (gastar == 1) {
                         exibir_painel_transparencia(jogo, true);
                         jogo->consultas_restantes_totais--;
@@ -246,7 +262,16 @@ void jogar_rodada(Jogo* jogo) {
             }
 
             printf("\nAcao: (1) Hit (Pedir Carta) ou (2) Stand (Manter)? ");
-            scanf("%d", &acao);
+            char input_acao[10];
+            fgets(input_acao, sizeof(input_acao), stdin);
+            char *endptr_acao;
+            long valor_acao = strtol(input_acao, &endptr_acao, 10);
+            if (endptr_acao == input_acao || (*endptr_acao != '\n' && *endptr_acao != '\0')) {
+                printf("[Fallback]: Entrada invalida. Assumindo stand (manter).\n");
+                acao = 2;
+            } else {
+                acao = (int)valor_acao;
+            }
             }
 
             if (acao == 1) {

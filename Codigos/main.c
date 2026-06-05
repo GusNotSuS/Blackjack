@@ -4,6 +4,8 @@
 #include "jogo.h"
 #include "baralho.h"
 
+void executar_simulacao_e_gerar_relatorio(void);
+
 int main() {
     srand(time(NULL));
     int deseja_continuar = 1;
@@ -23,10 +25,20 @@ int main() {
         printf("4 - Modo Dificil (Contagem puramente mental)\n");
         printf("5 - Modo Simulacao (100 partidas para cada algoritmo)\n");
         printf("Escolha: ");
-        scanf("%d", &jogo.nivel_dificuldade);
+        char input[10];
+        fgets(input, sizeof(input), stdin);
+        char *endptr;
+        long valor = strtol(input, &endptr, 10);
+        if (endptr == input || *endptr != '\n' && *endptr != '\0') {
+            printf("Entrada invalida. Usando valor padrao 1.\n");
+            jogo.nivel_dificuldade = 1;
+        } else {
+            jogo.nivel_dificuldade = (int)valor;
+        }
 
         if (jogo.nivel_dificuldade == 5) {
             executar_simulacao_e_gerar_relatorio();
+            deseja_continuar = 0;
         } else {
             while (jogo.saldo >= 50.0 && jogo.saldo < 500.0) {
                 jogar_rodada(&jogo);
@@ -48,7 +60,16 @@ int main() {
         }
 
         printf("\nDeseja iniciar um NOVO JOGO do zero? (1 - Sim / 0 - Sair): ");
-        scanf("%d", &deseja_continuar);
+        char input2[10];
+        fgets(input2, sizeof(input2), stdin);
+        char *endptr2;
+        long valor2 = strtol(input2, &endptr2, 10);
+        if (endptr2 == input2 || (*endptr2 != '\n' && *endptr2 != '\0')) {
+            printf("Entrada invalida. Saindo do jogo.\n");
+            deseja_continuar = 0;
+        } else {
+            deseja_continuar = (int)valor2;
+        }
         printf("\n\n");
     }
 
@@ -68,7 +89,7 @@ void executar_simulacao_e_gerar_relatorio() {
         return;
     }
 
-    fprintf(relatorio, "=== RELATÓRIO DE SIMULAÇÃO DE BLACKJACK ===\n\n");
+    fprintf(relatorio, "=== RELATÓRIO DETALHADO DE SIMULAÇÃO DE BLACKJACK ===\n\n");
     fprintf(relatorio, "Configuração:\n");
     fprintf(relatorio, " - Capital inicial: R$ 250.00\n");
     fprintf(relatorio, " - Aposta fixa por rodada: R$ 50.00\n");
@@ -80,6 +101,8 @@ void executar_simulacao_e_gerar_relatorio() {
 
         fprintf(relatorio, "Algoritmo %d: %s\n", algoritmo, nome_algoritmo);
         fprintf(relatorio, "----------------------------------------\n");
+        fprintf(relatorio, "Jogo | Resultado | Rodadas\n");
+        fprintf(relatorio, "------------------------\n");
 
         int vitorias = 0;
         int derrotas = 0;
@@ -104,16 +127,22 @@ void executar_simulacao_e_gerar_relatorio() {
 
             total_rodadas += jogo.rodadas_jogadas;
 
+            fprintf(relatorio, "%3d    | %7s   | %2d\n",
+                    sim + 1,
+                    vitoria ? "V" : "D",
+                    jogo.rodadas_jogadas);
+
             if (jogo.arquivo_historico != NULL) {
                 fechar_historico(&jogo, vitoria);
             }
             destruir_baralho(&jogo.topo_baralho);
         }
 
-        float media_rodadas = (float)total_rodadas / NUM_SIMULACOES;
-        float taxa_vitoria = ((float)vitorias / NUM_SIMULACOES) * 100.0f;
+        float media_rodadas = (float)total_rodadas / (float)NUM_SIMULACOES;
+        float taxa_vitoria = ((float)vitorias / (float)NUM_SIMULACOES) * 100.0f;
 
-        fprintf(relatorio, "Resultados:\n");
+        fprintf(relatorio, "\n");
+        fprintf(relatorio, "Estatísticas resumidas:\n");
         fprintf(relatorio, " - Vitórias: %d (%.2f%%)\n", vitorias, taxa_vitoria);
         fprintf(relatorio, " - Derrotas: %d (%.2f%%)\n", derrotas, 100.0f - taxa_vitoria);
         fprintf(relatorio, " - Média de rodadas por partida: %.2f\n", media_rodadas);
@@ -123,5 +152,5 @@ void executar_simulacao_e_gerar_relatorio() {
     fprintf(relatorio, "=== FIM DO RELATÓRIO ===\n");
     fclose(relatorio);
 
-    printf("\n[Sistema]: Simulação concluída. Relatório gerado em 'relatorio_algoritmos.txt'.\n");
+    printf("\n[Sistema]: Simulação concluída. Relatório detalhado gerado em 'relatorio_algoritmos.txt'.\n");
 }
