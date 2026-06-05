@@ -25,5 +25,6 @@ float calcular_probabilidade_banca_vencer(Jogo* jogo, int pontuacao_banca_visive
 void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao);
 void jogar_rodada(Jogo* jogo);
 void fechar_historico(Jogo* jogo, bool objetivo_atingido);
+void print_lento(const char* texto, int delay);
 
 #endif

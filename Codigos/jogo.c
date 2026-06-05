@@ -14,8 +14,8 @@
     void aguardar_ms(int milissegundos) {
         usleep(milissegundos * 1000);
     }
-#endif
-
+#endif  
+char temp[256];
 void inicializar_jogo(Jogo* jogo) {
     jogo->saldo = 250.0;
     jogo->topo_baralho = NULL;
@@ -138,7 +138,7 @@ void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao) {
         return;
     }
     
-    printf("\n--- PAINEL DE TRANSPARENCIA ESTATISTICA (CONTAGEM REAL) ---\n");
+    print_lento("\n--- PAINEL DE TRANSPARENCIA ESTATISTICA (CONTAGEM REAL) ---\n",5);
     printf("Cartas REVELADAS fora de jogo: %d\n", 52 - jogo->cartas_restantes);
     
     char idents[13][3] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
@@ -159,14 +159,16 @@ void jogar_rodada(Jogo* jogo) {
     }
 
     printf("\n==================================================\n");
-    printf("RODADA NUMERO: %d | SALDO ATUAL: R$ %.2f\n", jogo->rodadas_jogadas, jogo->saldo);
+    sprintf(temp,"RODADA NUMERO: %d | SALDO ATUAL: R$ %.2f\n", jogo->rodadas_jogadas, jogo->saldo);
+    print_lento(temp,1);
     printf("==================================================\n");
     
     float aposta = 0.0;
     bool aposta_valida = false;
     
     while (!aposta_valida) {
-        printf("Quanto deseja apostar nesta rodada? (Minimo: R$ 50.00 / Maximo: R$ %.2f): R$ ", jogo->saldo);
+        sprintf(temp,"Quanto deseja apostar nesta rodada? (Minimo: R$ 50.00 / Maximo: R$ %.2f): R$ ", jogo->saldo);
+        print_lento(temp,1);
         scanf("%f", &aposta);
         
         if (aposta < 50.0) {
@@ -202,10 +204,11 @@ void jogar_rodada(Jogo* jogo) {
 
     if (jogador.pontuacao == 21) {
         printf("\n==== FOR THE DEALER ====\n");
-        exibir_mao_grafica(&casa, true);
-        printf("\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
+        exibir_mao_grafica(&casa, true); 
+        sprintf(temp,"\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
+        print_lento(temp,1);
         exibir_mao_grafica(&jogador, false);
-        printf("\n[AVISO]: Voce atingiu a pontuacao maxima de 21 pontos com as iniciais!\n");
+        print_lento("\n[AVISO]: Voce atingiu a pontuacao maxima de 21 pontos com as iniciais!\n",5);
         aguardar_ms(1000);
     } else {
         while (jogador.pontuacao < 21) {
@@ -215,12 +218,14 @@ void jogar_rodada(Jogo* jogo) {
             
             printf("\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
             exibir_mao_grafica(&jogador, false);
-            printf("====================================================\n");
+            print_lento("====================================================\n",5);
 
             if (jogo->nivel_dificuldade == 1) { 
                 exibir_painel_transparencia(jogo, false);
-                printf("Sua probabilidade de ESTOURO se pedir carta (Hit): %.2f%%\n", calcular_probabilidade_estouro(jogo, jogador.pontuacao));
-                printf("Chance de a Banca ganhar/empatar com voce na carta oculta: %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, cc1.peso, jogador.pontuacao));
+                sprintf(temp,"Sua probabilidade de ESTOURO se pedir carta (Hit): %.2f%%\n", calcular_probabilidade_estouro(jogo, jogador.pontuacao));
+                print_lento(temp,5);
+                sprintf(temp,"Chance de a Banca ganhar/empatar com voce na carta oculta: %.2f%%\n", calcular_probabilidade_banca_vencer(jogo, cc1.peso, jogador.pontuacao));
+                print_lento(temp,5);
             } else if (jogo->nivel_dificuldade == 2) { 
                 exibir_painel_transparencia(jogo, false);
             } else if (jogo->nivel_dificuldade == 3) { 
@@ -237,7 +242,7 @@ void jogar_rodada(Jogo* jogo) {
                 }
             }
 
-            printf("\nAcao: (1) Hit (Pedir Carta) ou (2) Stand (Manter)? ");
+            print_lento("\nAcao: (1) Hit (Pedir Carta) ou (2) Stand (Manter)? ",1);
             scanf("%d", &acao);
 
             if (acao == 1) {
@@ -265,13 +270,15 @@ void jogar_rodada(Jogo* jogo) {
         jogo->cartas_restantes--; 
         registrar_saida_carta(jogo, cc2); 
         printf("\n--- Turno da Banca ---\n");
-        printf("==== FOR THE DEALER ==== REVELA A CARTA OCULTA:\n");
+        print_lento("==== FOR THE DEALER ==== REVELA A CARTA OCULTA:\n",3);
         exibir_mao_grafica(&casa, false);
-        printf("Pontuacao imediata da Banca: %d\n", casa.pontuacao);
+        sprintf(temp,"Pontuacao imediata da Banca: %d\n", casa.pontuacao);
+        print_lento(temp,10);
         aguardar_ms(1000);
 
         while (casa.pontuacao < 17) {
-            printf("Banca esta com %d pontos e compra uma carta...\n", casa.pontuacao);
+            sprintf(temp,"Banca esta com %d pontos e compra uma carta...\n", casa.pontuacao);
+            print_lento(temp,10);
             aguardar_ms(800);
             Carta nova = desempilhar(&jogo->topo_baralho);
             jogo->cartas_restantes--;
@@ -280,8 +287,9 @@ void jogar_rodada(Jogo* jogo) {
             exibir_mao_grafica(&casa, false);
         }
         
-        printf("\n================ RESULTADO FINAL ================\n");
-        printf("[SUA MAO] Pontos: %d | [BANCA] Pontos: %d\n", jogador.pontuacao, casa.pontuacao);
+        print_lento("\n================ RESULTADO FINAL ================\n",5);
+        sprintf(temp,"[SUA MAO] Pontos: %d | [BANCA] Pontos: %d\n", jogador.pontuacao, casa.pontuacao);
+        print_lento(temp,5);
 
         if (casa.pontuacao > 21) {
             printf("A Banca estourou! Voce venceu a rodada.\n");
@@ -326,5 +334,13 @@ void fechar_historico(Jogo* jogo, bool objetivo_atingido) {
         fprintf(jogo->arquivo_historico, "=========================================\n");
         fclose(jogo->arquivo_historico);
         printf("\n[Sistema]: Historico de jogo persistido com sucesso em 'historico_blackjack.txt'.\n");
+    }
+}
+
+void print_lento(const char* texto, int delay) {
+    while (*texto) {
+        putchar(*texto++);
+        fflush(stdout);
+        aguardar_ms(delay);
     }
 }

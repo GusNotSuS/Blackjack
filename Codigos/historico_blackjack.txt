@@ -213,3 +213,96 @@ SUMMARY DO JOGO:
   - Status Final: VITORIA TOTAL
   - Capital Final Encerramento: R$ 500.00
 =========================================
+
+=========================================
+=== JOGO 4 ===
+=== LOG DE PARTIDA - BLACKJACK VISUAL PREMIUM ===
+
+Rodada 1:
+  - Aposta: R$ 250.00
+  - Pontos Jogador: 20
+  - Pontos Banca: 18
+  - Resultado: Vitoria por Pontos
+  - Saldo Apos Rodada: R$ 500.00
+
+=========================================
+SUMMARY DO JOGO:
+  - Total de Rodadas Concluidas: 1
+  - Status Final: VITORIA TOTAL
+  - Capital Final Encerramento: R$ 500.00
+=========================================
+
+=========================================
+=== JOGO 5 ===
+=== LOG DE PARTIDA - BLACKJACK VISUAL PREMIUM ===
+
+Rodada 1:
+  - Aposta: R$ 200.00
+  - Pontos Jogador: 22
+  - Pontos Banca: 14
+  - Resultado: Derrota (Estouro)
+  - Saldo Apos Rodada: R$ 50.00
+
+Rodada 2:
+  - Aposta: R$ 50.00
+  - Pontos Jogador: 24
+  - Pontos Banca: 5
+  - Resultado: Derrota (Estouro)
+  - Saldo Apos Rodada: R$ 0.00
+
+=========================================
+SUMMARY DO JOGO:
+  - Total de Rodadas Concluidas: 2
+  - Status Final: DERROTA (FALENCIA)
+  - Capital Final Encerramento: R$ 0.00
+=========================================
+
+=========================================
+=== JOGO 6 ===
+=== LOG DE PARTIDA - BLACKJACK VISUAL PREMIUM ===
+
+Rodada 1:
+  - Aposta: R$ 100.00
+  - Pontos Jogador: 24
+  - Pontos Banca: 15
+  - Resultado: Derrota (Estouro)
+  - Saldo Apos Rodada: R$ 150.00
+
+Rodada 2:
+  - Aposta: R$ 100.00
+  - Pontos Jogador: 20
+  - Pontos Banca: 25
+  - Resultado: Vitoria (Banca Estourou)
+  - Saldo Apos Rodada: R$ 250.00
+
+Rodada 3:
+  - Aposta: R$ 250.00
+  - Pontos Jogador: 20
+  - Pontos Banca: 17
+  - Resultado: Vitoria por Pontos
+  - Saldo Apos Rodada: R$ 500.00
+
+=========================================
+SUMMARY DO JOGO:
+  - Total de Rodadas Concluidas: 3
+  - Status Final: VITORIA TOTAL
+  - Capital Final Encerramento: R$ 500.00
+=========================================
+
+=========================================
+=== JOGO 7 ===
+=== LOG DE PARTIDA - BLACKJACK VISUAL PREMIUM ===
+
+Rodada 1:
+  - Aposta: R$ 250.00
+  - Pontos Jogador: 19
+  - Pontos Banca: 24
+  - Resultado: Vitoria (Banca Estourou)
+  - Saldo Apos Rodada: R$ 500.00
+
+=========================================
+SUMMARY DO JOGO:
+  - Total de Rodadas Concluidas: 1
+  - Status Final: VITORIA TOTAL
+  - Capital Final Encerramento: R$ 500.00
+=========================================
