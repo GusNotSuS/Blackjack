@@ -6,14 +6,8 @@
 
 #ifdef _WIN32
     #include <windows.h>
-    void aguardar_ms(int milissegundos) {
-        Sleep(milissegundos);
-    }
 #else
     #include <unistd.h>
-    void aguardar_ms(int milissegundos) {
-        usleep(milissegundos * 1000);
-    }
 #endif
 
 void inicializar_jogo(Jogo* jogo) {
@@ -140,7 +134,6 @@ void jogar_rodada(Jogo* jogo) {
     
     if (jogo->cartas_restantes < 10) {
         printf("\n[AVISO]: O sapato possui poucas cartas conhecidas. Reembaralhando...\n");
-        aguardar_ms(500);
         criar_baralho(jogo);
     }
 
@@ -177,7 +170,6 @@ void jogar_rodada(Jogo* jogo) {
     }
 
     jogo->saldo -= aposta;
-    aguardar_ms(500);
 
     Mao jogador, casa;
     inicializar_mao(&jogador);
@@ -205,7 +197,6 @@ void jogar_rodada(Jogo* jogo) {
         printf("\n==== FOR THE PLAYER ==== (Pontos: %d)\n", jogador.pontuacao);
         exibir_mao_grafica(&jogador, false);
         printf("\n[AVISO]: Voce atingiu a pontuacao maxima de 21 pontos com as iniciais!\n");
-        aguardar_ms(1000);
         }
     } else {
         while (jogador.pontuacao < 21) {
@@ -281,7 +272,6 @@ void jogar_rodada(Jogo* jogo) {
                 adicionar_carta_na_mao(&jogador, nova);
                 if (jogo->nivel_dificuldade < 5) {
                 printf("\nVoce comprou uma carta...\n");
-                aguardar_ms(500);
                 }
             } else {
                 break;
@@ -297,10 +287,8 @@ void jogar_rodada(Jogo* jogo) {
         printf("\n==== FOR THE PLAYER ==== FINAL (Pontos: %d)\n", jogador.pontuacao);
         exibir_mao_grafica(&jogador, false);
         printf("\nSua pontuacao final: %d. Voce ESTOUROU (Bust)!\n", jogador.pontuacao);
-            aguardar_ms(1000);
         }
         strcpy(resultado_rodada, "Derrota (Estouro)");
-        aguardar_ms(1000);
     } else {
         jogo->cartas_restantes--; 
         registrar_saida_carta(jogo, cc2); 
@@ -312,13 +300,11 @@ void jogar_rodada(Jogo* jogo) {
         printf("==== FOR THE DEALER ==== REVELA A CARTA OCULTA:\n");
         exibir_mao_grafica(&casa, false);
         printf("Pontuacao imediata da Banca: %d\n", casa.pontuacao);
-        aguardar_ms(1000);
         }
 
         while (casa.pontuacao < 17) {
             if (jogo->nivel_dificuldade < 5) {
             printf("Banca esta com %d pontos e compra uma carta...\n", casa.pontuacao);
-            aguardar_ms(800);
             }
             Carta nova = desempilhar(&jogo->topo_baralho);
             jogo->cartas_restantes--;
@@ -359,7 +345,6 @@ void jogar_rodada(Jogo* jogo) {
             strcpy(resultado_rodada, "Empate (Push)");
         }
         printf("=================================================\n");
-        aguardar_ms(1500);
     }
 
     if (jogo->arquivo_historico != NULL) {
