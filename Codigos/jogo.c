@@ -252,6 +252,12 @@ void jogar_rodada(Jogo* jogo) {
                 adicionar_carta_na_mao(&jogador, nova);
                 printf("\nVoce comprou uma carta...\n");
                 aguardar_ms(500);
+
+                if (jogador.pontuacao == 21) {
+                    printf("\n==== SUA MAO ATUALIZADA ==== (Pontos: %d)\n", jogador.pontuacao);
+                    exibir_mao_grafica(&jogador, false);
+                    aguardar_ms(1000);
+                }
             } else {
                 break;
             }
