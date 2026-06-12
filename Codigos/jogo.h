@@ -16,7 +16,6 @@ typedef struct {
     FILE* arquivo_historico;
 } Jogo;
 
-void aguardar_ms(int milissegundos);
 void inicializar_jogo(Jogo* jogo);
 void criar_baralho(Jogo* jogo);
 void atualizar_frequencia_inicial(Jogo* jogo);

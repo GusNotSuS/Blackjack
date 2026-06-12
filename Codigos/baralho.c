@@ -5,6 +5,7 @@
 void empilhar(No **topo, Carta carta) {
   No *novo = (No *)malloc(sizeof(No));
   if (!novo) {
+    fprintf(stderr, "Erro: memória insuficiente ao empilhar carta\n");
     exit(1);
   }
   novo->carta = carta;

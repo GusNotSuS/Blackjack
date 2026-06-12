@@ -3,6 +3,7 @@
 #include <time.h>
 #include "jogo.h"
 #include "baralho.h"
+#include "config.h"
 
 void executar_simulacao_e_gerar_relatorio(void);
 
@@ -17,7 +18,7 @@ int main() {
         Jogo jogo;
         inicializar_jogo(&jogo);
 
-        printf("Capital Inicial fixado em R$ 250.00 | Objetivo: R$ 500.00\n\n");
+        printf("Capital Inicial fixado em R$ %.2f | Objetivo: R$ %.2f\n\n", SALDO_INICIAL, OBJETIVO_VITORIA);
         printf("Selecione o Nivel de Dificuldade:\n");
         printf("1 - Modo Assistencia (Suporte Total)\n");
         printf("2 - Modo Facil (Sem calculo automatizado)\n");
@@ -40,14 +41,14 @@ int main() {
             executar_simulacao_e_gerar_relatorio();
             deseja_continuar = 0;
         } else {
-            while (jogo.saldo >= 50.0 && jogo.saldo < 500.0) {
+            while (jogo.saldo >= APOSTA_MINIMA && jogo.saldo < OBJETIVO_VITORIA) {
                 jogar_rodada(&jogo);
             }
 
-            bool vitoria = (jogo.saldo >= 500.0);
+            bool vitoria = (jogo.saldo >= OBJETIVO_VITORIA);
             if (vitoria) {
                 printf("\n==================================================\n");
-                printf(" PARABENS! Voce atingiu o objetivo de R$ 500.00!\n");
+                printf(" PARABENS! Voce atingiu o objetivo de R$ %.2f!\n", OBJETIVO_VITORIA);
                 printf("==================================================\n");
             } else {
                 printf("\n==================================================\n");
@@ -91,8 +92,8 @@ void executar_simulacao_e_gerar_relatorio() {
 
     fprintf(relatorio, "=== RELATÓRIO DETALHADO DE SIMULAÇÃO DE BLACKJACK ===\n\n");
     fprintf(relatorio, "Configuração:\n");
-    fprintf(relatorio, " - Capital inicial: R$ 250.00\n");
-    fprintf(relatorio, " - Aposta fixa por rodada: R$ 50.00\n");
+    fprintf(relatorio, " - Capital inicial: R$ %.2f\n", SALDO_INICIAL);
+    fprintf(relatorio, " - Aposta fixa por rodada: R$ %.2f\n", APOSTA_MINIMA);
     fprintf(relatorio, " - Número de simulações por algoritmo: %d\n\n", NUM_SIMULACOES);
 
     for (int alg_idx = 0; alg_idx < NUM_ALGORITMOS; alg_idx++) {
@@ -114,11 +115,11 @@ void executar_simulacao_e_gerar_relatorio() {
             jogo.nivel_dificuldade = algoritmo;
             jogo.arquivo_historico = NULL;
 
-            while (jogo.saldo >= 50.0 && jogo.saldo < 500.0) {
+            while (jogo.saldo >= APOSTA_MINIMA && jogo.saldo < OBJETIVO_VITORIA) {
                 jogar_rodada(&jogo);
             }
 
-            bool vitoria = (jogo.saldo >= 500.0);
+            bool vitoria = (jogo.saldo >= OBJETIVO_VITORIA);
             if (vitoria) {
                 vitorias++;
             } else {

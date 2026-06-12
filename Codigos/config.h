@@ -1,0 +1,10 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define APOSTA_MINIMA 50.0f
+#define SALDO_INICIAL 250.0f
+#define OBJETIVO_VITORIA 500.0f
+#define TAMANHO_BARALHO 52
+#define LIMITE_REEMBARALHO 10
+
+#endif

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "jogo.h"
 #include "mao.h"
+#include "config.h"
 
 #ifdef _WIN32
     #include <windows.h>
@@ -11,7 +12,7 @@
 #endif
 
 void inicializar_jogo(Jogo* jogo) {
-    jogo->saldo = 250.0;
+    jogo->saldo = SALDO_INICIAL;
     jogo->topo_baralho = NULL;
     jogo->cartas_restantes = 0;
     jogo->consultas_restantes_totais = 3;
@@ -32,7 +33,7 @@ void criar_baralho(Jogo* jogo) {
     char idents[13][3] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     int pesos[13] = {11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
-    Carta sapato_temporario[52];
+    Carta sapato_temporario[TAMANHO_BARALHO];
     int k = 0;
     for (int n = 0; n < 4; n++) {
         for (int i = 0; i < 13; i++) {
@@ -50,10 +51,10 @@ void criar_baralho(Jogo* jogo) {
         sapato_temporario[j] = temp;
     }
 
-    for (int i = 0; i < 52; i++) {
+    for (int i = 0; i < TAMANHO_BARALHO; i++) {
         empilhar(&jogo->topo_baralho, sapato_temporario[i]);
     }
-    jogo->cartas_restantes = 52;
+    jogo->cartas_restantes = TAMANHO_BARALHO;
 
     atualizar_frequencia_inicial(jogo);
 }
@@ -119,7 +120,7 @@ void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao) {
     }
     
     printf("\n--- PAINEL DE TRANSPARENCIA ESTATISTICA (CONTAGEM REAL) ---\n");
-    printf("Cartas REVELADAS fora de jogo: %d\n", 52 - jogo->cartas_restantes);
+    printf("Cartas REVELADAS fora de jogo: %d\n", TAMANHO_BARALHO - jogo->cartas_restantes);
     
     char idents[13][3] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     printf("Cartas estatisticamente disponiveis (sem contar as ocultas):\n|");
@@ -132,7 +133,7 @@ void exibir_painel_transparencia(Jogo* jogo, bool forcar_exibicao) {
 void jogar_rodada(Jogo* jogo) {
     jogo->rodadas_jogadas++;
     
-    if (jogo->cartas_restantes < 10) {
+    if (jogo->cartas_restantes < LIMITE_REEMBARALHO) {
         printf("\n[AVISO]: O sapato possui poucas cartas conhecidas. Reembaralhando...\n");
         criar_baralho(jogo);
     }
@@ -145,11 +146,11 @@ void jogar_rodada(Jogo* jogo) {
     bool aposta_valida = false;
     
     if (jogo->nivel_dificuldade >= 5) {
-        aposta = 50.0f;
+        aposta = APOSTA_MINIMA;
         aposta_valida = true;
     } else {
     while (!aposta_valida) {
-        printf("Quanto deseja apostar nesta rodada? (Minimo: R$ 50.00 / Maximo: R$ %.2f): R$ ", jogo->saldo);
+        printf("Quanto deseja apostar nesta rodada? (Minimo: R$ %.2f / Maximo: R$ %.2f): R$ ", APOSTA_MINIMA, jogo->saldo);
         char input_aposta[20];
         fgets(input_aposta, sizeof(input_aposta), stdin);
         char *endptr_aposta;
@@ -159,8 +160,8 @@ void jogar_rodada(Jogo* jogo) {
             continue;
         }
         
-        if (aposta < 50.0) {
-            printf("[Fallback]: A aposta minima permitida e de R$ 50.00.\n\n");
+        if (aposta < APOSTA_MINIMA) {
+            printf("[Fallback]: A aposta minima permitida e de R$ %.2f.\n\n", APOSTA_MINIMA);
         } else if (aposta > jogo->saldo) {
             printf("[Fallback]: Saldo insuficiente.\n\n");
         } else {
@@ -184,7 +185,7 @@ void jogar_rodada(Jogo* jogo) {
     Carta c2 = desempilhar(&jogo->topo_baralho); jogo->cartas_restantes--; registrar_saida_carta(jogo, c2);
     adicionar_carta_na_mao(&jogador, c2);
 
-    Carta cc2 = desempilhar(&jogo->topo_baralho); 
+    Carta cc2 = desempilhar(&jogo->topo_baralho); jogo->cartas_restantes--; registrar_saida_carta(jogo, cc2);
     adicionar_carta_na_mao(&casa, cc2);
 
     int acao = 1;
@@ -290,8 +291,6 @@ void jogar_rodada(Jogo* jogo) {
         }
         strcpy(resultado_rodada, "Derrota (Estouro)");
     } else {
-        jogo->cartas_restantes--; 
-        registrar_saida_carta(jogo, cc2); 
         jogo->cartas_restantes--;
         registrar_saida_carta(jogo, cc2);
 
